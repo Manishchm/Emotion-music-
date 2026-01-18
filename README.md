@@ -2,9 +2,7 @@
 
 A sophisticated web-based application that detects user emotions through facial recognition and recommends music accordingly. Built with Flask, OpenCV, and machine learning - **No external APIs required!**
 
-![Version](https://img.shields.io/badge/version-2.0-blue)
 ![Python](https://img.shields.io/badge/python-3.8+-green)
-![License](https://img.shields.io/badge/license-MIT-orange)
 
 ## ✨ Features
 
@@ -543,15 +541,11 @@ Contributions are welcome! Here's how:
 - Update documentation for new features
 - Test thoroughly before submitting
 
-## 📄 License
-
-This project is open source and available under the [MIT License](LICENSE).
-
 ## 👨‍💻 Author
 
-**Ikshang**
+**Manish**
 
-- GitHub: [@Ikshang](https://github.com/Ikshang)
+- GitHub: [@Ikshang](https://github.com/Manishchm)
 
 ## 🙏 Acknowledgments
 
