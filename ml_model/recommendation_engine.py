@@ -1,7 +1,5 @@
 import sqlite3
 import numpy as np
-from sklearn.neighbors import NearestNeighbors
-from sklearn.preprocessing import StandardScaler
 import os
 
 # Map emotions to target valence and energy values
@@ -41,8 +39,12 @@ def get_song_features():
         # Return empty values if database is not available
         return [], np.array([]), []
 
-def get_recommendations(target_emotion, n_recommendations=5):
+def get_recommendations(target_emotion, n_recommendations=5, limit=None):
     """Get song recommendations based on target emotion"""
+    # Handle limit parameter for backwards compatibility
+    if limit is not None:
+        n_recommendations = limit
+        
     # Get target features for the emotion
     target_features = EMOTION_FEATURE_MAP.get(target_emotion.lower(), [0.5, 0.5])
     
@@ -58,20 +60,17 @@ def get_recommendations(target_emotion, n_recommendations=5):
             'file_path': f'/static/music/{target_emotion}/sample{i}.mp3'
         } for i in range(1, 6)]
     
-    # Standardize features
-    scaler = StandardScaler()
-    scaled_features = scaler.fit_transform(features)
-    scaled_target = scaler.transform([target_features])
+    # Calculate distances manually using numpy
+    target_array = np.array(target_features)
+    distances = np.sqrt(np.sum((features - target_array) ** 2, axis=1))
     
-    # Find nearest neighbors
-    knn = NearestNeighbors(n_neighbors=min(n_recommendations, len(features)), metric='euclidean')
-    knn.fit(scaled_features)
-    
-    distances, indices = knn.kneighbors(scaled_target)
+    # Get indices of n_recommendations closest songs
+    n_recs = min(n_recommendations, len(features))
+    indices = np.argsort(distances)[:n_recs]
     
     # Get recommended songs
     recommendations = []
-    for idx in indices[0]:
+    for idx in indices:
         recommendations.append(song_info[idx])
     
     return recommendations

@@ -6,7 +6,6 @@ No external APIs required
 
 import sqlite3
 import numpy as np
-from sklearn.metrics.pairwise import cosine_similarity
 
 def get_content_based_recommendations(emotion, user_id=None, n_recommendations=10):
     """
@@ -37,10 +36,17 @@ def get_content_based_recommendations(emotion, user_id=None, n_recommendations=1
     target_energy = emotion_features.get(emotion.lower(), {}).get('energy', 0.5)
     
     # Get all songs from database
-    cursor.execute('''
-        SELECT id, title, artist, file_path, emotion_tag, valence, energy, play_count
-        FROM songs
-    ''')
+    try:
+        cursor.execute('''
+            SELECT id, title, artist, file_path, emotion_tag, valence, energy, play_count
+            FROM songs
+        ''')
+    except:
+        # If play_count column doesn't exist, query without it
+        cursor.execute('''
+            SELECT id, title, artist, file_path, emotion_tag, valence, energy
+            FROM songs
+        ''')
     
     all_songs = cursor.fetchall()
     
@@ -51,7 +57,13 @@ def get_content_based_recommendations(emotion, user_id=None, n_recommendations=1
     # Calculate similarity for each song
     song_scores = []
     
-    for song_id, title, artist, file_path, emotion_tag, valence, energy, play_count in all_songs:
+    for song_data in all_songs:
+        # Handle both cases: with and without play_count
+        if len(song_data) == 8:
+            song_id, title, artist, file_path, emotion_tag, valence, energy, play_count = song_data
+        else:
+            song_id, title, artist, file_path, emotion_tag, valence, energy = song_data
+            play_count = 0
         # Calculate Euclidean distance in feature space
         valence_diff = abs(valence - target_valence)
         energy_diff = abs(energy - target_energy)
